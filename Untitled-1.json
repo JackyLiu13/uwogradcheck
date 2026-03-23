@@ -1,0 +1,42 @@
+{
+  "courses": {
+    "ACTURSCI_1021AB": {
+      "url": "https://www.westerncalendar.uwo.ca/Courses.cfm?CourseAcadCalendarID=MAIN_022436_1&SelectedCalendar=Live&ArchiveID=",
+      "course_title": "Actuarial Science 1021A/B",
+      "informal_name": "INTRODUCTION TO FINANCIAL SECURITY SYSTEMS",
+      "course_weight": 0.50,
+      "breadth": "CATEGORY C",
+      "subject_code": "ACTURSCI",
+      "modules": [
+        {
+          "faculty": "Faculty of Science",
+          "study": "Statistical and Actuarial Sciences",
+          "program_type": "Honours Specialization",
+          "program": "HONOURS SPECIALIZATION IN ACTUARIAL SCIENCE",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21053&SelectedCalendar=Live&ArchiveID="
+        },
+        {
+          "faculty": "Faculty of Science",
+          "study": "Statistical and Actuarial Sciences",
+          "program_type": "Major",
+          "program": "MAJOR IN ACTUARIAL SCIENCE",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21050&SelectedCalendar=Live&ArchiveID="
+        },
+        {
+          "faculty": "Faculty of Social Science",
+          "study": "Geography and Environment",
+          "program_type": "Combined Degree Program",
+          "program": "HONOURS SPECIALIZATION IN URBAN DEVELOPMENT/HBA",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21318&SelectedCalendar=Live&ArchiveID="
+        },
+        {
+          "faculty": "Richard Ivey School Of Business",
+          "study": "HBA Combined Programs",
+          "program_type": "Combined Degree Program",
+          "program": "HBA/HONOURS SPECIALIZATION IN URBAN DEVELOPMENT",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21482&SelectedCalendar=Live&ArchiveID="
+        }
+      ]
+    }
+  }
+}

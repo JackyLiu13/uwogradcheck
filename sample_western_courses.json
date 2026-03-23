@@ -1,0 +1,328 @@
+{
+  "courses": {
+    " ": {
+      "id": "KINGS_031014_1",
+      "url": "https://www.westerncalendar.uwo.ca/Courses.cfm?CourseAcadCalendarID=KINGS_031014_1&SelectedCalendar=Live&ArchiveID=",
+      "course_title": "Actuarial Science 2052A/B",
+      "informal_name": "Academic Calendar - 2025",
+      "course_weight": 0.5,
+      "breadth": "CATEGORY C",
+      "subject_code": "ACTURSCI",
+      "modules": [
+        {
+          "faculty": "King's University College",
+          "study": "Management, Economics, and Mathematics, School of",
+          "program": "HONOURS SPECIALIZATION IN FINANCE AND ADMINISTRATION",
+          "program_type": "Honours Specialization",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21505&SelectedCalendar=Live&ArchiveID="
+        },
+        {
+          "faculty": "King's University College",
+          "study": "Management, Economics, and Mathematics, School of",
+          "program": "HONOURS SPECIALIZATION IN FINANCIAL ECONOMICS",
+          "program_type": "Honours Specialization",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21726&SelectedCalendar=Live&ArchiveID="
+        },
+        {
+          "faculty": "King's University College",
+          "study": "Management, Economics, and Mathematics, School of",
+          "program": "MAJOR IN FINANCE",
+          "program_type": "Major",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=20709&SelectedCalendar=Live&ArchiveID="
+        },
+        {
+          "faculty": "King's University College",
+          "study": "Management, Economics, and Mathematics, School of",
+          "program": "MINOR IN FINANCE",
+          "program_type": "Minor",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=20711&SelectedCalendar=Live&ArchiveID="
+        },
+        {
+          "faculty": "King's University College",
+          "study": "Management, Economics, and Mathematics, School of",
+          "program": "SPECIALIZATION IN FINANCE AND ADMINISTRATION",
+          "program_type": "Specialization",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21513&SelectedCalendar=Live&ArchiveID="
+        },
+        {
+          "faculty": "King's University College",
+          "study": "Management, Economics, and Mathematics, School of",
+          "program": "SPECIALIZATION IN FINANCIAL ECONOMICS",
+          "program_type": "Specialization",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=20713&SelectedCalendar=Live&ArchiveID="
+        }
+      ]
+    },
+    "ACTURSCI_2427AB": {
+      "id": "MAIN_022438_1",
+      "url": "https://www.westerncalendar.uwo.ca/Courses.cfm?CourseAcadCalendarID=MAIN_022438_1&SelectedCalendar=Live&ArchiveID=",
+      "course_title": "Actuarial Science 2427A/B",
+      "informal_name": "Academic Calendar - 2025",
+      "course_weight": 0.5,
+      "breadth": "CATEGORY C",
+      "subject_code": "ACTURSCI",
+      "modules": [
+        {
+          "faculty": "Faculty of Science",
+          "study": "Statistical and Actuarial Sciences",
+          "program": "HONOURS SPECIALIZATION IN ACTUARIAL SCIENCE",
+          "program_type": "Honours Specialization",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21053&SelectedCalendar=Live&ArchiveID="
+        },
+        {
+          "faculty": "Faculty of Science",
+          "study": "Statistical and Actuarial Sciences",
+          "program": "MAJOR IN ACTUARIAL SCIENCE",
+          "program_type": "Major",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21050&SelectedCalendar=Live&ArchiveID="
+        }
+      ]
+    },
+    "ACTURSCI_4823AB": {
+      "id": "MAIN_005558_1",
+      "url": "https://www.westerncalendar.uwo.ca/Courses.cfm?CourseAcadCalendarID=MAIN_005558_1&SelectedCalendar=Live&ArchiveID=",
+      "course_title": "Actuarial Science 4823A/B",
+      "informal_name": "Academic Calendar - 2025",
+      "course_weight": 0.5,
+      "breadth": "CATEGORY C",
+      "subject_code": "ACTURSCI",
+      "modules": [
+        {
+          "faculty": "Faculty of Science",
+          "study": "Statistical and Actuarial Sciences",
+          "program": "HONOURS SPECIALIZATION IN STATISTICS",
+          "program_type": "Honours Specialization",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21055&SelectedCalendar=Live&ArchiveID="
+        }
+      ]
+    },
+    "ACTURSCI_4950AB": {
+      "id": "MAIN_020356_1",
+      "url": "https://www.westerncalendar.uwo.ca/Courses.cfm?CourseAcadCalendarID=MAIN_020356_1&SelectedCalendar=Live&ArchiveID=",
+      "course_title": "Actuarial Science 4950A/B",
+      "informal_name": "Academic Calendar - 2025",
+      "course_weight": 0.5,
+      "breadth": "CATEGORY C",
+      "subject_code": "ACTURSCI",
+      "modules": []
+    },
+    "ACTURSCI_2053": {
+      "id": "KINGS_013196_3",
+      "url": "https://www.westerncalendar.uwo.ca/Courses.cfm?CourseAcadCalendarID=KINGS_013196_3&SelectedCalendar=Live&ArchiveID=",
+      "course_title": "Actuarial Science 2053",
+      "informal_name": "Academic Calendar - 2025",
+      "course_weight": 1.0,
+      "breadth": "CATEGORY C",
+      "subject_code": "ACTURSCI",
+      "modules": [
+        {
+          "faculty": "Huron University College",
+          "study": "Management and Organizational Studies (BMOS Program) - Faculty of Arts and Social Science",
+          "program": "HONOURS SPECIALIZATION IN FINANCE AND ADMINISTRATION",
+          "program_type": "Honours Specialization",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21497&SelectedCalendar=Live&ArchiveID="
+        },
+        {
+          "faculty": "Huron University College",
+          "study": "Management and Organizational Studies (BMOS Program) - Faculty of Arts and Social Science",
+          "program": "SPECIALIZATION IN FINANCE AND ADMINISTRATION",
+          "program_type": "Specialization",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21502&SelectedCalendar=Live&ArchiveID="
+        },
+        {
+          "faculty": "Faculty of Science",
+          "study": "Statistical and Actuarial Sciences",
+          "program": "MINOR IN APPLIED FINANCIAL MODELLING",
+          "program_type": "Minor",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21606&SelectedCalendar=Live&ArchiveID="
+        },
+        {
+          "faculty": "Faculty of Social Science",
+          "study": "DAN Management & Organizational Studies (BMOS Program)",
+          "program": "HONOURS SPECIALIZATION IN COMMERCIAL AVIATION MANAGEMENT",
+          "program_type": "Honours Specialization",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21580&SelectedCalendar=Live&ArchiveID="
+        },
+        {
+          "faculty": "Faculty of Social Science",
+          "study": "DAN Management & Organizational Studies (BMOS Program)",
+          "program": "HONOURS SPECIALIZATION IN FINANCE",
+          "program_type": "Honours Specialization",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21518&SelectedCalendar=Live&ArchiveID="
+        },
+        {
+          "faculty": "Faculty of Social Science",
+          "study": "DAN Management & Organizational Studies (BMOS Program)",
+          "program": "SPECIALIZATION IN COMMERCIAL AVIATION MANAGEMENT",
+          "program_type": "Specialization",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21527&SelectedCalendar=Live&ArchiveID="
+        },
+        {
+          "faculty": "Faculty of Social Science",
+          "study": "DAN Management & Organizational Studies (BMOS Program)",
+          "program": "SPECIALIZATION IN FINANCE",
+          "program_type": "Specialization",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21529&SelectedCalendar=Live&ArchiveID="
+        },
+        {
+          "faculty": "Faculty of Social Science",
+          "study": "Geography and Environment",
+          "program": "HONOURS SPECIALIZATION IN URBAN DEVELOPMENT - BA",
+          "program_type": "Honours Specialization",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21038&SelectedCalendar=Live&ArchiveID="
+        }
+      ]
+    },
+    "ACTURSCI_1021AB": {
+      "id": "MAIN_022436_1",
+      "url": "https://www.westerncalendar.uwo.ca/Courses.cfm?CourseAcadCalendarID=MAIN_022436_1&SelectedCalendar=Live&ArchiveID=",
+      "course_title": "Actuarial Science 1021A/B",
+      "informal_name": "Academic Calendar - 2025",
+      "course_weight": 0.5,
+      "breadth": "CATEGORY C",
+      "subject_code": "ACTURSCI",
+      "modules": [
+        {
+          "faculty": "Faculty of Science",
+          "study": "Statistical and Actuarial Sciences",
+          "program": "HONOURS SPECIALIZATION IN ACTUARIAL SCIENCE",
+          "program_type": "Honours Specialization",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21053&SelectedCalendar=Live&ArchiveID="
+        },
+        {
+          "faculty": "Faculty of Science",
+          "study": "Statistical and Actuarial Sciences",
+          "program": "MAJOR IN ACTUARIAL SCIENCE",
+          "program_type": "Major",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21050&SelectedCalendar=Live&ArchiveID="
+        },
+        {
+          "faculty": "Faculty of Social Science",
+          "study": "Geography and Environment",
+          "program": "HONOURS SPECIALIZATION IN URBAN DEVELOPMENT/HBA",
+          "program_type": "Honours Specialization",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21318&SelectedCalendar=Live&ArchiveID="
+        },
+        {
+          "faculty": "Richard Ivey School Of Business",
+          "study": "HBA Combined Programs",
+          "program": "HBA/HONOURS SPECIALIZATION IN URBAN DEVELOPMENT",
+          "program_type": "Hba/Honours Specialization",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21482&SelectedCalendar=Live&ArchiveID="
+        }
+      ]
+    },
+    "ACTURSCI_3424AB": {
+      "id": "MAIN_022440_1",
+      "url": "https://www.westerncalendar.uwo.ca/Courses.cfm?CourseAcadCalendarID=MAIN_022440_1&SelectedCalendar=Live&ArchiveID=",
+      "course_title": "Actuarial Science 3424A/B",
+      "informal_name": "Academic Calendar - 2025",
+      "course_weight": 0.5,
+      "breadth": "CATEGORY C",
+      "subject_code": "ACTURSCI",
+      "modules": [
+        {
+          "faculty": "Faculty of Science",
+          "study": "Statistical and Actuarial Sciences",
+          "program": "HONOURS SPECIALIZATION IN ACTUARIAL SCIENCE",
+          "program_type": "Honours Specialization",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21053&SelectedCalendar=Live&ArchiveID="
+        },
+        {
+          "faculty": "Faculty of Science",
+          "study": "Statistical and Actuarial Sciences",
+          "program": "HONOURS SPECIALIZATION IN STATISTICS",
+          "program_type": "Honours Specialization",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21055&SelectedCalendar=Live&ArchiveID="
+        },
+        {
+          "faculty": "Faculty of Science",
+          "study": "Statistical and Actuarial Sciences",
+          "program": "MAJOR IN ACTUARIAL SCIENCE",
+          "program_type": "Major",
+          "url": "https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21050&SelectedCalendar=Live&ArchiveID="
+        }
+      ]
+    },
+    "MAIN_022442_1": {
+      "id": "MAIN_022442_1",
+      "url": "https://www.westerncalendar.uwo.ca/Courses.cfm?CourseAcadCalendarID=MAIN_022442_1&SelectedCalendar=Live&ArchiveID=",
+      "course_title": "",
+      "informal_name": "Academic Calendar - 2025",
+      "course_weight": "",
+      "breadth": "",
+      "subject_code": "",
+      "modules": []
+    },
+    "MAIN_010734_1": {
+      "id": "MAIN_010734_1",
+      "url": "https://www.westerncalendar.uwo.ca/Courses.cfm?CourseAcadCalendarID=MAIN_010734_1&SelectedCalendar=Live&ArchiveID=",
+      "course_title": "",
+      "informal_name": "Academic Calendar - 2025",
+      "course_weight": "",
+      "breadth": "",
+      "subject_code": "",
+      "modules": []
+    },
+    "MAIN_007696_1": {
+      "id": "MAIN_007696_1",
+      "url": "https://www.westerncalendar.uwo.ca/Courses.cfm?CourseAcadCalendarID=MAIN_007696_1&SelectedCalendar=Live&ArchiveID=",
+      "course_title": "",
+      "informal_name": "Academic Calendar - 2025",
+      "course_weight": "",
+      "breadth": "",
+      "subject_code": "",
+      "modules": []
+    },
+    "MAIN_004961_1": {
+      "id": "MAIN_004961_1",
+      "url": "https://www.westerncalendar.uwo.ca/Courses.cfm?CourseAcadCalendarID=MAIN_004961_1&SelectedCalendar=Live&ArchiveID=",
+      "course_title": "",
+      "informal_name": "Academic Calendar - 2025",
+      "course_weight": "",
+      "breadth": "",
+      "subject_code": "",
+      "modules": []
+    },
+    "MAIN_020357_1": {
+      "id": "MAIN_020357_1",
+      "url": "https://www.westerncalendar.uwo.ca/Courses.cfm?CourseAcadCalendarID=MAIN_020357_1&SelectedCalendar=Live&ArchiveID=",
+      "course_title": "",
+      "informal_name": "Academic Calendar - 2025",
+      "course_weight": "",
+      "breadth": "",
+      "subject_code": "",
+      "modules": []
+    },
+    "MAIN_013196_1": {
+      "id": "MAIN_013196_1",
+      "url": "https://www.westerncalendar.uwo.ca/Courses.cfm?CourseAcadCalendarID=MAIN_013196_1&SelectedCalendar=Live&ArchiveID=",
+      "course_title": "",
+      "informal_name": "Academic Calendar - 2025",
+      "course_weight": "",
+      "breadth": "",
+      "subject_code": "",
+      "modules": []
+    },
+    "MAIN_025277_1": {
+      "id": "MAIN_025277_1",
+      "url": "https://www.westerncalendar.uwo.ca/Courses.cfm?CourseAcadCalendarID=MAIN_025277_1&SelectedCalendar=Live&ArchiveID=",
+      "course_title": "",
+      "informal_name": "Academic Calendar - 2025",
+      "course_weight": "",
+      "breadth": "",
+      "subject_code": "",
+      "modules": []
+    },
+    "MAIN_016897_1": {
+      "id": "MAIN_016897_1",
+      "url": "https://www.westerncalendar.uwo.ca/Courses.cfm?CourseAcadCalendarID=MAIN_016897_1&SelectedCalendar=Live&ArchiveID=",
+      "course_title": "",
+      "informal_name": "Academic Calendar - 2025",
+      "course_weight": "",
+      "breadth": "",
+      "subject_code": "",
+      "modules": []
+    }
+  }
+}
