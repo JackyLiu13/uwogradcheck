@@ -57,3 +57,30 @@ To prevent overwhelming the target server and to handle soft blocks gracefully, 
   - `0.5s` to `3.0s` delay after failed subject fetches.
   - `10.0s` to `20.0s` delay if 0 courses are found for a subject.
   - `10.0s` to `50.0s` artificial delay after processing each individual course to mimic manual browsing speed.
+
+## Module Scraping (`crawl_modules`)
+
+The script also includes functionality to scrape specific graduation and admission requirements from all modules linked in the course data.
+Because Western University applies strict IP-based rate limiting and CAPTCHA protection for module pages, you must authenticate the crawler using a real browser session.
+
+### How to Bypass the CAPTCHA
+
+1. Open your normal web browser (e.g., Chrome) and navigate to any module page (e.g. `https://www.westerncalendar.uwo.ca/Modules.cfm?ModuleID=21580`).
+2. If confronted with a CAPTCHA ("Please confirm you are indeed a person"), solve it manually.
+3. Once the page loads successfully, open Developer Tools (`F12`), go to the **Application** tab, and view your **Cookies** under `westerncalendar.uwo.ca`.
+4. Copy the values for `CFID` and `CFTOKEN`.
+5. Create a `cookies.json` file in the root directory of this project with the following format:
+```json
+{
+  "CFID": "your_cfid_here",
+  "CFTOKEN": "your_cftoken_here"
+}
+```
+*(Note: `cookies.json` is safely ignored by git!)*
+
+6. Run the script:
+```bash
+python -c "from crawler import WesternCrawler; c = WesternCrawler(); c.crawl_modules()"
+```
+
+The script will automatically detect `cookies.json`, inject your verified session to bypass the firewall, and incrementally save all module data to `western_modules.json`.

@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse, parse_qs
 import json
 import time
+import re
 
 class WesternCrawler:
     BASE_URL = "https://www.westerncalendar.uwo.ca/"
@@ -11,10 +12,22 @@ class WesternCrawler:
     def __init__(self):
         self.session = requests.Session()
         self.session.headers.update({
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "Accept-Language": "en-US,en;q=0.9",
         })
         self.output_file = "western_courses.json"
+        self.modules_file = "western_modules.json"
+        
+        # Load manual session cookies to bypass CAPTCHA
+        import os
+        if os.path.exists("cookies.json"):
+            with open("cookies.json", "r") as f:
+                self.session.cookies.update(json.load(f))
+                print("Loaded manual session cookies from cookies.json.")
+                
         self.courses_data = self.load_data()
+        self.modules_data = self.load_modules()
 
     def load_data(self):
         try:
@@ -262,6 +275,255 @@ class WesternCrawler:
         except Exception as e:
             print(f"Error fetching details for {course_url}: {e}")
             return None
+
+    def load_modules(self):
+        try:
+            with open(self.modules_file, "r") as f:
+                data = json.load(f)
+                print(f"Loaded {len(data.get('modules', {}))} existing modules.")
+                return data
+        except (FileNotFoundError, json.JSONDecodeError):
+            return {"modules": {}}
+
+    def save_modules(self):
+        with open(self.modules_file, "w") as f:
+            json.dump(self.modules_data, f, indent=2)
+
+    def get_module_details(self, module_url):
+        """Scrape a module page and extract structured requirement data."""
+        print(f"Fetching module from {module_url}...")
+        response = self.fetch_with_retry(module_url)
+        if not response:
+            return None
+
+        try:
+            soup = BeautifulSoup(response.text, "html.parser")
+
+            # Extract module ID from URL
+            parsed_url = urlparse(module_url)
+            query_params = parse_qs(parsed_url.query)
+            module_id = query_params.get("ModuleID", ["UNKNOWN"])[0]
+
+            # Module name and type from <h2>
+            module_name = ""
+            module_type = ""
+            faculty = ""
+            department = ""
+
+            if "One more thing... Please confirm you are indeed a person" in soup.get_text():
+                return {"error": "captcha"}
+
+
+            h2 = soup.find("h2")
+            if h2:
+                # Type from the icon <img> inside h2
+                icon_img = h2.find("img")
+                if icon_img:
+                    module_type = icon_img.get("title", "").strip()
+
+                # Name is the text of h2 excluding the <small> tag
+                small_tag = h2.find("small")
+                if small_tag:
+                    faculty_dept = small_tag.get_text(strip=True)
+                    # Format: "Faculty of Science - Statistical and Actuarial Sciences"
+                    if " - " in faculty_dept:
+                        parts = faculty_dept.split(" - ", 1)
+                        faculty = parts[0].strip()
+                        department = parts[1].strip()
+                    else:
+                        faculty = faculty_dept
+
+                # Module name = h2 text minus small text minus img alt
+                h2_text = h2.get_text(strip=True)
+                if small_tag:
+                    h2_text = h2_text.replace(small_tag.get_text(strip=True), "").strip()
+                if icon_img and icon_img.get("alt"):
+                    h2_text = h2_text.replace(icon_img.get("alt", ""), "").strip()
+                module_name = h2_text
+
+            # Admission Requirements
+            admission_text = ""
+            admission_courses = []
+            adm_div = soup.find("div", id="AdmissionRequirements")
+            if adm_div:
+                admission_text = adm_div.get_text(strip=True)
+                for a_tag in adm_div.find_all("a", href=True):
+                    href = a_tag["href"]
+                    if "Courses.cfm" in href:
+                        admission_courses.append({
+                            "name": a_tag.get_text(strip=True).rstrip(","),
+                            "url": urljoin(self.BASE_URL, href)
+                        })
+
+            # Module/Program Information (course groups)
+            course_groups = []
+            total_courses = 0.0
+            notes = ""
+
+            module_div = soup.find("div", class_="moduleInfo")
+            if module_div:
+                module_text = module_div.get_text()
+
+                # Extract total courses from "Module X.X courses:"
+                total_match = re.search(r'Module\s*(\d+\.?\d*)\s*courses?:', module_text)
+                if total_match:
+                    total_courses = float(total_match.group(1))
+
+                # Use raw HTML and split on <br> variants for reliable parsing
+                # BS4's html.parser nests content inside <br> tags incorrectly
+                raw_html = str(module_div)
+                
+                # Split on <br>, <br/>, <br />
+                segments = re.split(r'<br\s*/?>', raw_html)
+
+                for segment in segments:
+                    seg_soup = BeautifulSoup(segment, "html.parser")
+                    seg_text = seg_soup.get_text(strip=True)
+
+                    if not seg_text:
+                        continue
+
+                    # Skip "Module" header and div wrappers
+                    if seg_text in ("Module", "") or seg_text.startswith("<div"):
+                        continue
+
+                    # Strip leading "X.X courses:" header if concatenated (e.g., "6.0 courses:2.0 courses:...")
+                    header_strip = re.match(r'(\d+\.?\d*)\s*courses?:\s*(.*)', seg_text, re.DOTALL)
+                    if header_strip and header_strip.group(2) and re.match(r'\d+\.?\d*\s+', header_strip.group(2)):
+                        # This is "6.0 courses:2.0 courses:..." - strip the header
+                        seg_text = header_strip.group(2)
+                        # Re-parse segment HTML to also strip the header part
+                        # Find where the actual group starts in the HTML
+                    
+                    # Match "X.X courses:" or "X.X course:" or "X.X course from:" 
+                    credit_match = re.match(
+                        r'(\d+\.?\d*)\s+courses?\s*(from\s*)?:\s*(.*)',
+                        seg_text, re.IGNORECASE | re.DOTALL
+                    )
+
+                    if credit_match:
+                        credits = float(credit_match.group(1))
+                        is_from = credit_match.group(2) is not None
+                        
+                        # Extract linked courses
+                        linked_courses = []
+                        for a_tag in seg_soup.find_all("a", href=True):
+                            href = a_tag["href"]
+                            if "Courses.cfm" in href:
+                                linked_courses.append({
+                                    "name": a_tag.get_text(strip=True).rstrip(","),
+                                    "url": urljoin(self.BASE_URL, href)
+                                })
+
+                        if is_from:
+                            group = {
+                                "credits": credits,
+                                "type": "choose_from",
+                                "courses": linked_courses,
+                                "description": seg_text
+                            }
+                        else:
+                            group = {
+                                "credits": credits,
+                                "type": "required",
+                                "courses": linked_courses
+                            }
+                        course_groups.append(group)
+                        continue
+
+                    # Match "X.X additional ..." patterns 
+                    additional_match = re.match(
+                        r'(\d+\.?\d*)\s*\xa0?additional\s+(.*)',
+                        seg_text, re.IGNORECASE
+                    )
+                    if additional_match:
+                        credits = float(additional_match.group(1))
+                        linked_courses = []
+                        for a_tag in seg_soup.find_all("a", href=True):
+                            if "Courses.cfm" in a_tag["href"]:
+                                linked_courses.append({
+                                    "name": a_tag.get_text(strip=True).rstrip(","),
+                                    "url": urljoin(self.BASE_URL, a_tag["href"])
+                                })
+                        course_groups.append({
+                            "credits": credits,
+                            "type": "additional",
+                            "description": seg_text,
+                            "courses": linked_courses
+                        })
+                        continue
+
+                    # Notes: substitution rules, general notes
+                    if ("Note:" in seg_text or "may be replaced" in seg_text 
+                            or "may be substituted" in seg_text or "can only be" in seg_text):
+                        if notes:
+                            notes += " "
+                        notes += seg_text
+
+            return {
+                "module_id": module_id,
+                "name": module_name,
+                "type": module_type,
+                "faculty": faculty,
+                "department": department,
+                "admission_requirements": {
+                    "text": admission_text,
+                    "courses": admission_courses
+                },
+                "total_courses": total_courses,
+                "course_groups": course_groups,
+                "notes": notes,
+                "url": module_url
+            }
+
+        except Exception as e:
+            print(f"Error fetching module {module_url}: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+
+    def get_all_module_urls(self):
+        """Extract all unique module URLs from the crawled course data."""
+        module_urls = {}
+        for course in self.courses_data.get("courses", {}).values():
+            for module in course.get("modules", []):
+                url = module.get("url", "")
+                if url:
+                    parsed = urlparse(url)
+                    mid = parse_qs(parsed.query).get("ModuleID", [""])[0]
+                    if mid:
+                        module_urls[mid] = url
+        print(f"Found {len(module_urls)} unique modules in course data.")
+        return module_urls
+
+    def crawl_modules(self):
+        """Crawl all module pages and save to western_modules.json."""
+        module_urls = self.get_all_module_urls()
+
+        for i, (mid, url) in enumerate(module_urls.items()):
+            # Skip if already crawled
+            if mid in self.modules_data.get("modules", {}):
+                print(f"[{i+1}/{len(module_urls)}] Skipping module {mid} (already crawled)")
+                continue
+
+            print(f"[{i+1}/{len(module_urls)}] Crawling module {mid}...")
+            details = self.get_module_details(url)
+
+            if details:
+                if details.get("error") == "captcha":
+                    print("CAPTCHA detected! Stopping crawl immediately.")
+                    break
+                self.modules_data["modules"][mid] = details
+                self.save_modules()
+                print(f"  -> Saved: {details['name']}")
+            else:
+                print(f"  -> FAILED to fetch module {mid}")
+
+            # Rate limit - significantly increased to bypass bot protection
+            import random
+            time.sleep(random.uniform(15.0, 25.0))
+
+        print(f"Module crawling complete. {len(self.modules_data['modules'])} modules saved to {self.modules_file}")
 
     def run(self):
         subjects = self.get_subjects()
