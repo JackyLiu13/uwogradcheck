@@ -9,6 +9,7 @@ class ValidatorEngine:
         self.courses_path = os.path.join(data_dir, "western_courses.json")
         self.modules_data = self._load_json(self.modules_path)
         self.courses_data = self._load_json(self.courses_path)
+        self.abbrev_map = self._build_abbreviation_map()
         
     def _load_json(self, path: str) -> Dict:
         try:
@@ -17,10 +18,164 @@ class ValidatorEngine:
         except Exception as e:
             print(f"Error loading {path}: {e}")
             return {}
+
+    def _build_abbreviation_map(self) -> Dict[str, str]:
+        """
+        Build a bidirectional map between subject abbreviations (e.g. COMPSCI)
+        and full names (e.g. COMPUTER SCIENCE) using the scraped course data.
+        Both directions map to the FULL NAME as the canonical form.
+        """
+        # Hardcoded map of common UWO abbreviations to full subject names
+        KNOWN_ABBREVIATIONS = {
+            "ACTURSCI": "ACTUARIAL SCIENCE",
+            "AMERSTUD": "AMERICAN STUDIES",
+            "ADS": "ANALYTICS AND DECISION SCIENCES",
+            "ANATCELL": "ANATOMY AND CELL BIOLOGY",
+            "ANTHRO": "ANTHROPOLOGY",
+            "APPLMATH": "APPLIED MATHEMATICS",
+            "ARABIC": "ARABIC",
+            "ARTHIST": "ART HISTORY",
+            "ASTRON": "ASTRONOMY",
+            "BME": "BME",
+            "BIOCHEM": "BIOCHEMISTRY",
+            "BIOLOGY": "BIOLOGY",
+            "BIOSTAT": "BIOSTATISTICS",
+            "BLACKST": "BLACK STUDIES",
+            "BUS": "BUSINESS ADMINISTRATION",
+            "BUSADMIN": "BUSINESS ADMINISTRATION",
+            "CGS": "CENTRE FOR GLOBAL STUDIES",
+            "CALC": "CALCULUS",
+            "CALCULUS": "CALCULUS",
+            "CHEMBENG": "CHEMICAL AND BIOCHEMICAL ENGINEERING",
+            "CHEM": "CHEMISTRY",
+            "CHILDYTH": "CHILDHOOD AND YOUTH STUDIES",
+            "CHINESE": "CHINESE",
+            "CLASSICS": "CLASSICAL STUDIES",
+            "COMMSCI": "COMMUNICATION SCIENCES AND DISORDERS",
+            "CSD": "COMMUNICATION SCIENCES AND DISORDERS",
+            "COMPLITC": "COMPARATIVE LITERATURE AND CULTURE",
+            "COMPSCI": "COMPUTER SCIENCE",
+            "CS": "COMPUTER SCIENCE",
+            "DATASCI": "DATA SCIENCE",
+            "DIGCOMM": "DIGITAL COMMUNICATION",
+            "DH": "DIGITAL HUMANITIES",
+            "DISABST": "DISABILITY STUDIES",
+            "EARTHSCI": "EARTH SCIENCES",
+            "ECON": "ECONOMICS",
+            "ENGSCI": "ENGINEERING SCIENCE",
+            "ENGLISH": "ENGLISH",
+            "ENVSCI": "ENVIRONMENTAL SCIENCE",
+            "EPID": "EPIDEMIOLOGY",
+            "EPIDBIO": "EPIDEMIOLOGY AND BIOSTATISTICS",
+            "FAMSTUD": "FAMILY STUDIES AND HUMAN DEVELOPMENT",
+            "FINMOD": "FINANCIAL MODELLING",
+            "FRENCH": "FRENCH",
+            "GLE": "GOVERNANCE, LEADERSHIP AND ETHICS",
+            "GSWS": "GSWS",
+            "GEOG": "GEOGRAPHY",
+            "GERMAN": "GERMAN",
+            "GREEK": "GREEK",
+            "HLTHSCI": "HEALTH SCIENCES",
+            "HEBREW": "HEBREW",
+            "HISTORY": "HISTORY",
+            "INDIGEN": "INDIGENOUS STUDIES",
+            "INTGSCI": "INTEGRATED SCIENCE",
+            "INTCOMM": "INTERCULTURAL COMMUNICATIONS",
+            "ITALIAN": "ITALIAN",
+            "JAPANESE": "JAPANESE",
+            "KIN": "KINESIOLOGY",
+            "LAW": "LAW",
+            "LING": "LINGUISTICS",
+            "MOS": "MANAGEMENT AND ORGANIZATIONAL STUDIES",
+            "MATH": "MATHEMATICS",
+            "MEDIACOM": "MEDIACOM",
+            "MEDBIO": "MEDICAL BIOINFORMATICS",
+            "MEDBPHYS": "MEDICAL BIOPHYSICS",
+            "MEDSCI": "MEDICAL SCIENCES",
+            "MICROIMM": "MICROBIOLOGY AND IMMUNOLOGY",
+            "MUSEUMS": "MUSEUM AND CURATORIAL STUDIES",
+            "NEURO": "NEUROSCIENCE",
+            "NMM": "NUMERICAL AND MATHEMATICAL METHODS",
+            "NURSING": "NURSING",
+            "ONEHLTH": "ONE HEALTH",
+            "PATH": "PATHOLOGY",
+            "PERSIAN": "PERSIAN",
+            "PHARM": "PHARMACOLOGY",
+            "PHIL": "PHILOSOPHY",
+            "PHYSIC": "PHYSICS",
+            "PHYSICS": "PHYSICS",
+            "PHYSIOL": "PHYSIOLOGY",
+            "PHYSPHRM": "PHYSIOLOGY AND PHARMACOLOGY",
+            "POLISCI": "POLITICAL SCIENCE",
+            "PSYCH": "PSYCHOLOGY",
+            "RELSTUD": "RELIGIOUS STUDIES",
+            "SCIENCE": "SCIENCE",
+            "SOC": "SOCIOLOGY",
+            "SPANISH": "SPANISH",
+            "STATSCI": "STATISTICAL SCIENCES",
+            "WRITING": "WRITING",
+        }
+        
+        abbrev_to_full = {}
+        full_to_abbrev = {}
+
+        # Load hardcoded abbreviations first
+        for abbrev, full in KNOWN_ABBREVIATIONS.items():
+            abbrev_to_full[abbrev] = full
+            abbrev_to_full[full] = full
+            full_to_abbrev[full] = abbrev
+        
+        # Method 1: Use subject_code field (when populated)
+        for course in self.courses_data.get("courses", {}).values():
+            subject_code = course.get("subject_code", "").strip().upper()
+            course_title = course.get("course_title", "").strip()
+            
+            if not subject_code or not course_title:
+                continue
+                
+            match = re.match(r'^(.+?)\s+\d{4}', course_title)
+            if match:
+                full_name = match.group(1).strip().upper()
+                abbrev_to_full[subject_code] = full_name
+                abbrev_to_full[full_name] = full_name
+                full_to_abbrev[full_name] = subject_code
+        
+        # Method 2: Use course KEYS in western_courses.json (e.g. "COMPSCI_2208AB")
+        for key, course in self.courses_data.get("courses", {}).items():
+            course_title = course.get("course_title", "").strip()
+            if not course_title:
+                continue
+            
+            match = re.match(r'^(.+?)\s+\d{4}', course_title)
+            if not match:
+                continue
+            full_name = match.group(1).strip().upper()
+            
+            key_match = re.match(r'^([A-Z]+)_\d{4}', key.upper())
+            if key_match:
+                abbrev = key_match.group(1)
+                abbrev_to_full[abbrev] = full_name
+                abbrev_to_full[full_name] = full_name
+                full_to_abbrev[full_name] = abbrev
+        
+        # Method 3: Scan module course lists for full names
+        for module in self.modules_data.get("modules", {}).values():
+            for group in module.get("course_groups", []):
+                for course in group.get("courses", []):
+                    name = course.get("name", "")
+                    match = re.match(r'^(.+?)\s+\d{4}', name)
+                    if match:
+                        full_name = match.group(1).strip().upper()
+                        abbrev_to_full[full_name] = full_name
+        
+        print(f"Built abbreviation map with {len(abbrev_to_full)} entries.")
+        return abbrev_to_full
             
     def normalize_course(self, course_str: str) -> str:
         """
-        Normalize a course string to standard format. e.g. 'Calculus 1000A/B' -> 'CALCULUS 1000'
+        Normalize a course string to a canonical format.
+        e.g. 'Calculus 1000A/B' -> 'CALCULUS 1000'
+             'COMPSCI 2208A'    -> 'COMPUTER SCIENCE 2208'
         """
         if not course_str:
             return ""
@@ -29,11 +184,13 @@ class ValidatorEngine:
         if match:
             subject = match.group(1).strip()
             num = match.group(2)
-            return f"{subject} {num}"
+            # Resolve abbreviation to canonical full name
+            canonical = self.abbrev_map.get(subject, subject)
+            return f"{canonical} {num}"
         return course_str
 
     def check_course_match(self, required_str: str, student_courses_normalized: List[str]) -> bool:
-        """Check if required_str (e.g. 'Calculus 1000A/B') is satisfied by student courses"""
+        """Check if required_str (e.g. 'Computer Science 1026A/B') is satisfied by student courses"""
         normalized_req = self.normalize_course(required_str)
         return normalized_req in student_courses_normalized
 
@@ -80,8 +237,6 @@ class ValidatorEngine:
                     else:
                         group_res["courses_missing"].append(course_name)
                 
-                # Calculate credits met for required
-                # Assume each required course contributes to the pool equally if not otherwise specified
                 courses_len = len(group.get("courses", []))
                 if courses_len > 0:
                     proportion = len(group_res["courses_met"]) / courses_len
@@ -89,7 +244,6 @@ class ValidatorEngine:
                     group_res["is_met"] = len(group_res["courses_missing"]) == 0
                     
             elif group_type == "choose_from":
-                # Need to pick certain credits from a list
                 courses_list = group.get("courses", [])
                 credits_found = 0.0
                 for course in courses_list:
@@ -105,7 +259,6 @@ class ValidatorEngine:
                 group_res["credits_met"] = round(min(credits_found, credits_required), 2)
                 group_res["is_met"] = group_res["credits_met"] >= credits_required
                 
-                # For choose_from, you are missing options if you haven't met the credit mark
                 if not group_res["is_met"]:
                     group_res["courses_missing"] = [c.get("name") for c in courses_list if c.get("name") not in group_res["courses_met"]]
                 
@@ -124,7 +277,6 @@ class ValidatorEngine:
         return result
 
     def _get_course_weight(self, course_name: str) -> float:
-        # Look up weight in courses_data
         norm_name = self.normalize_course(course_name)
         for c_data in self.courses_data.get("courses", {}).values():
             if self.normalize_course(c_data.get("course_title", "")) == norm_name:
@@ -133,5 +285,4 @@ class ValidatorEngine:
                     return float(w) if w else 0.5
                 except:
                     return 0.5
-        # Default to half credit
         return 0.5
