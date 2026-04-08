@@ -208,9 +208,43 @@ class ValidatorEngine:
             "faculty": module.get("faculty"),
             "department": module.get("department"),
             "total_courses_required": module.get("total_courses", 0),
+            "admission": None,
             "groups": []
         }
         
+        # --- Admission Requirements ---
+        adm = module.get("admission_requirements", {})
+        adm_courses_raw = adm.get("courses", [])
+        adm_text = adm.get("text", "")
+        
+        if adm_courses_raw:
+            # Deduplicate admission courses by normalized name
+            seen = set()
+            adm_courses_unique = []
+            for c in adm_courses_raw:
+                norm = self.normalize_course(c.get("name", ""))
+                if norm and norm not in seen:
+                    seen.add(norm)
+                    adm_courses_unique.append(c)
+            
+            adm_met = []
+            adm_missing = []
+            for c in adm_courses_unique:
+                name = c.get("name", "")
+                if self.check_course_match(name, student_courses_norm):
+                    adm_met.append(name)
+                else:
+                    adm_missing.append(name)
+            
+            result["admission"] = {
+                "text": adm_text,
+                "total_courses": len(adm_courses_unique),
+                "courses_met": adm_met,
+                "courses_missing": adm_missing,
+                "is_met": len(adm_missing) == 0
+            }
+        
+        # --- Module Course Groups ---
         total_credits_met = 0.0
         total_credits_required = 0.0
         
