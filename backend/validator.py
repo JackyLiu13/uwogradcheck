@@ -239,6 +239,7 @@ class ValidatorEngine:
         # --- Module Course Groups ---
         total_credits_met = 0.0
         total_credits_required = 0.0
+        used_courses = set()  # Track courses consumed by earlier groups
         
         for group in module.get("course_groups", []):
             group_type = group.get("type")
@@ -258,8 +259,10 @@ class ValidatorEngine:
                 # Must take these exact courses
                 for course in group.get("courses", []):
                     course_name = course.get("name")
-                    if self.check_course_match(course_name, student_courses_norm):
+                    norm = self.normalize_course(course_name)
+                    if norm not in used_courses and self.check_course_match(course_name, student_courses_norm):
                         group_res["courses_met"].append(course_name)
+                        used_courses.add(norm)
                     else:
                         group_res["courses_missing"].append(course_name)
                 
@@ -277,10 +280,12 @@ class ValidatorEngine:
                 # First, check explicitly listed courses
                 for course in courses_list:
                     course_name = course.get("name")
-                    if self.check_course_match(course_name, student_courses_norm):
+                    norm = self.normalize_course(course_name)
+                    if norm not in used_courses and self.check_course_match(course_name, student_courses_norm):
                         course_weigh = self._get_course_weight(course_name)
                         credits_found += course_weigh
                         group_res["courses_met"].append(course_name)
+                        used_courses.add(norm)
                     
                     if credits_found >= credits_required:
                         break
@@ -298,8 +303,8 @@ class ValidatorEngine:
                         for sc in student_courses_norm:
                             if credits_found >= credits_required:
                                 break
-                            # Skip courses already counted
-                            if sc in [self.normalize_course(c) for c in group_res["courses_met"]]:
+                            # Skip courses already used in any group
+                            if sc in used_courses:
                                 continue
                             for subject, min_level in level_patterns:
                                 match = re.match(r'^(.+?)\s+(\d{4})$', sc)
@@ -309,6 +314,7 @@ class ValidatorEngine:
                                     if sc_subject == subject and sc_num >= min_level:
                                         credits_found += 0.5  # Default half-credit
                                         group_res["courses_met"].append(f"{sc} (level match)")
+                                        used_courses.add(sc)
                                         break
                 
                 group_res["credits_met"] = round(min(credits_found, credits_required), 2)
