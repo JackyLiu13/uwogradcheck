@@ -7,33 +7,30 @@ export default function EvaluationResults({ result }: { result: any }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
-      {/* Admission Requirements Section */}
-      {admission && (
+      {/* Admission Requirements — Informational Only */}
+      {admission && admission.text && (
         <div className="glass-panel" style={{ padding: '32px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '8px' }}>
-            <h3>Admission Requirements</h3>
-            <span className={admission.is_met ? 'badge badge-success' : 'badge badge-danger'}>
-              {admission.is_met ? 'MET' : `${admission.courses_met.length} / ${admission.total_courses} completed`}
-            </span>
-          </div>
-          
-          <p className="text-muted mb-3" style={{ fontSize: '0.85rem', lineHeight: '1.5' }}>
-            These are the prerequisite courses needed for admission into the module.
+          <h3 className="mb-2">Admission Requirements</h3>
+          <p className="text-muted mb-3" style={{ fontSize: '0.85rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>
+            {admission.text}
           </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            {admission.courses_met.map((c: string, i: number) => (
-              <div key={`met-${i}`} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
-                <span style={{ color: 'var(--success)', fontSize: '1.1rem' }}>✓</span>
-                <span>{c}</span>
+          {admission.courses_met && admission.courses_met.length > 0 && (
+            <div style={{ marginTop: '16px' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>
+                Courses from this list you have completed:
+              </span>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {admission.courses_met.map((c: string, i: number) => (
+                  <span key={i} className="badge badge-success">{c}</span>
+                ))}
               </div>
-            ))}
-            {admission.courses_missing.map((c: string, i: number) => (
-              <div key={`miss-${i}`} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
-                <span style={{ color: 'var(--danger)', fontSize: '1.1rem' }}>✗</span>
-                <span style={{ color: 'var(--text-muted)' }}>{c}</span>
-              </div>
-            ))}
+            </div>
+          )}
+
+          <div style={{ marginTop: '16px', fontSize: '0.8rem', color: '#ffcc00', padding: '8px 10px', background: 'rgba(255,204,0,0.08)', borderRadius: '6px', lineHeight: '1.5' }}>
+            <strong>Note:</strong> Admission requirements vary by calendar year and include &quot;choose from&quot; options. 
+            Review the text above to confirm you meet the criteria for your specific admission year.
           </div>
         </div>
       )}
@@ -75,7 +72,6 @@ export default function EvaluationResults({ result }: { result: any }) {
                    </span>
                  </div>
 
-                 {/* Show completed courses with checkmarks */}
                  {g.courses_met && g.courses_met.length > 0 && (
                    <div style={{ marginBottom: '8px' }}>
                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
