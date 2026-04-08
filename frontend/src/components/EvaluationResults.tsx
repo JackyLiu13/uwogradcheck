@@ -7,6 +7,31 @@ export default function EvaluationResults({ result }: { result: any }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
+      {/* Unrecognized Courses Warning */}
+      {result.invalid_courses && result.invalid_courses.length > 0 && (
+        <div style={{ 
+          padding: '16px', 
+          background: 'rgba(255, 60, 60, 0.1)', 
+          borderLeft: '4px solid var(--danger)', 
+          borderRadius: '0 8px 8px 0',
+          marginBottom: '8px'
+        }}>
+          <h4 style={{ color: '#ffb3b3', margin: '0 0 8px 0', fontSize: '1rem' }}>
+            Unrecognized Courses Ignored
+          </h4>
+          <p style={{ margin: '0 0 12px 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>
+            The following courses were not recognized as valid Western courses and have been ignored:
+          </p>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            {result.invalid_courses.map((c: string, i: number) => (
+              <span key={i} className="badge badge-danger">
+                {c}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Admission Requirements — Structured Groups */}
       {admission && admission.groups && admission.groups.length > 0 && (
         <div className="glass-panel" style={{ padding: '32px' }}>

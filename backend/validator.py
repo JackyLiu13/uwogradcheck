@@ -10,6 +10,7 @@ class ValidatorEngine:
         self.modules_data = self._load_json(self.modules_path)
         self.courses_data = self._load_json(self.courses_path)
         self.abbrev_map = self._build_abbreviation_map()
+        self.known_courses = self._build_known_courses()
         
     def _load_json(self, path: str) -> Dict:
         try:
@@ -170,6 +171,32 @@ class ValidatorEngine:
         
         print(f"Built abbreviation map with {len(abbrev_to_full)} entries.")
         return abbrev_to_full
+
+    def _build_known_courses(self) -> set:
+        known = set()
+        
+        # Add from modules data
+        for module in self.modules_data.get("modules", {}).values():
+            for group in module.get("course_groups", []):
+                for course in group.get("courses", []):
+                    norm = self.normalize_course(course.get("name", ""))
+                    if norm:
+                        known.add(norm)
+            
+            adm = module.get("admission_requirements", {})
+            for course in adm.get("courses", []):
+                norm = self.normalize_course(course.get("name", ""))
+                if norm:
+                    known.add(norm)
+                    
+        # Add from courses data
+        for course in self.courses_data.get("courses", {}).values():
+            norm = self.normalize_course(course.get("course_title", ""))
+            if norm:
+                known.add(norm)
+                
+        print(f"Built known courses set with {len(known)} entries.")
+        return known
             
     def normalize_course(self, course_str: str) -> str:
         """
@@ -201,6 +228,15 @@ class ValidatorEngine:
             
         student_courses_norm = [self.normalize_course(c) for c in student_courses]
         
+        # Validate student courses against known courses
+        valid_courses = []
+        invalid_courses = []
+        for raw, norm in zip(student_courses, student_courses_norm):
+            if norm in self.known_courses:
+                valid_courses.append(norm)
+            else:
+                invalid_courses.append(raw)
+        
         result = {
             "module_id": module_id,
             "module_name": module.get("name"),
@@ -209,8 +245,12 @@ class ValidatorEngine:
             "department": module.get("department"),
             "total_courses_required": module.get("total_courses", 0),
             "admission": None,
-            "groups": []
+            "groups": [],
+            "invalid_courses": invalid_courses
         }
+        
+        # Use only validated courses for evaluation
+        student_courses_norm = valid_courses
         
         # --- Admission Requirements ---
         adm = module.get("admission_requirements", {})
@@ -311,7 +351,7 @@ class ValidatorEngine:
                                 if match:
                                     sc_subject = match.group(1)
                                     sc_num = int(match.group(2))
-                                    if sc_subject == subject and sc_num >= min_level:
+                                    if sc_subject == subject and sc_num >= min_level and sc in self.known_courses:
                                         credits_found += 0.5  # Default half-credit
                                         group_res["courses_met"].append(f"{sc} (level match)")
                                         used_courses.add(sc)
