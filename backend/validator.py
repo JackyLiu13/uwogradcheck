@@ -217,31 +217,23 @@ class ValidatorEngine:
         adm_courses_raw = adm.get("courses", [])
         adm_text = adm.get("text", "")
         
-        if adm_courses_raw:
-            # Deduplicate admission courses by normalized name
-            seen = set()
-            adm_courses_unique = []
-            for c in adm_courses_raw:
-                norm = self.normalize_course(c.get("name", ""))
-                if norm and norm not in seen:
-                    seen.add(norm)
-                    adm_courses_unique.append(c)
+        if adm_text:
+            parsed_groups = self._parse_admission_text(adm_text, adm_courses_raw)
             
-            adm_met = []
-            adm_missing = []
-            for c in adm_courses_unique:
-                name = c.get("name", "")
-                if self.check_course_match(name, student_courses_norm):
-                    adm_met.append(name)
-                else:
-                    adm_missing.append(name)
+            # Check student courses against each parsed group
+            for group in parsed_groups:
+                met = []
+                missing = []
+                for c in group.get("courses", []):
+                    if self.check_course_match(c, student_courses_norm):
+                        met.append(c)
+                    else:
+                        missing.append(c)
+                group["courses_met"] = met
+                group["courses_missing"] = missing
             
             result["admission"] = {
-                "text": adm_text,
-                "total_courses": len(adm_courses_unique),
-                "courses_met": adm_met,
-                "courses_missing": adm_missing,
-                "is_met": len(adm_missing) == 0
+                "groups": parsed_groups
             }
         
         # --- Module Course Groups ---
@@ -320,3 +312,64 @@ class ValidatorEngine:
                 except:
                     return 0.5
         return 0.5
+
+    def _parse_admission_text(self, text: str, linked_courses: List[Dict]) -> List[Dict]:
+        """
+        Parse unstructured admission requirements text into structured groups.
+        
+        Patterns detected:
+          - "0.5 course: Course Name 1234A/B"          -> required
+          - "0.5 course from: Course A, Course B or C" -> choose_from
+          - "(with a mark of at least 65%)"            -> grade requirement
+        """
+        groups = []
+        
+        # Build a set of all linked course names for extraction
+        all_linked = set()
+        for c in linked_courses:
+            name = c.get("name", "").strip()
+            if name:
+                all_linked.add(name)
+        
+        # Split text into segments at "X.X course" boundaries
+        # Pattern: number followed by "course:" or "course from:"
+        pattern = r'(\d+\.?\d*)\s*(?:courses?)\s*(from\s*)?:'
+        splits = list(re.finditer(pattern, text, re.IGNORECASE))
+        
+        for idx, match in enumerate(splits):
+            credits = float(match.group(1))
+            is_from = match.group(2) is not None
+            
+            # Get the text segment between this match and the next
+            start = match.end()
+            end = splits[idx + 1].start() if idx + 1 < len(splits) else len(text)
+            segment = text[start:end].strip()
+            
+            # Extract grade requirement from segment
+            grade_req = None
+            grade_match = re.search(r'mark of at least (\d+)%', segment)
+            if grade_match:
+                grade_req = int(grade_match.group(1))
+            
+            # Find course names in this segment by matching against linked courses
+            courses_in_segment = []
+            seen_norm = set()
+            for course_name in all_linked:
+                # Check if the course name appears in this segment (case-insensitive)
+                # Use a simple substring check — the course names are unique enough
+                search_name = course_name.replace("A/B", "").replace("F/G", "").replace("A/B/Y", "").strip()
+                if search_name.lower() in segment.lower():
+                    norm = self.normalize_course(course_name)
+                    if norm not in seen_norm:
+                        seen_norm.add(norm)
+                        courses_in_segment.append(course_name)
+            
+            if courses_in_segment:
+                groups.append({
+                    "credits": credits,
+                    "type": "choose_from" if is_from else "required",
+                    "grade_requirement": grade_req,
+                    "courses": courses_in_segment
+                })
+        
+        return groups

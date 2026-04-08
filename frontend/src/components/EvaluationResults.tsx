@@ -7,30 +7,63 @@ export default function EvaluationResults({ result }: { result: any }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
-      {/* Admission Requirements — Informational Only */}
-      {admission && admission.text && (
+      {/* Admission Requirements — Structured Groups */}
+      {admission && admission.groups && admission.groups.length > 0 && (
         <div className="glass-panel" style={{ padding: '32px' }}>
-          <h3 className="mb-2">Admission Requirements</h3>
-          <p className="text-muted mb-3" style={{ fontSize: '0.85rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>
-            {admission.text}
-          </p>
-
-          {admission.courses_met && admission.courses_met.length > 0 && (
-            <div style={{ marginTop: '16px' }}>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>
-                Courses from this list you have completed:
-              </span>
-              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                {admission.courses_met.map((c: string, i: number) => (
-                  <span key={i} className="badge badge-success">{c}</span>
-                ))}
-              </div>
-            </div>
-          )}
-
+          <h3 className="mb-3">Admission Requirements</h3>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {admission.groups.map((g: any, i: number) => {
+              const hasMet = g.courses_met && g.courses_met.length > 0;
+              const isSatisfied = g.type === 'required' 
+                ? g.courses_missing.length === 0
+                : hasMet;
+              
+              return (
+                <div key={i} style={{
+                  padding: '14px 16px',
+                  background: isSatisfied ? 'var(--success-glass)' : 'rgba(0,0,0,0.2)',
+                  borderLeft: `4px solid ${isSatisfied ? 'var(--success)' : 'rgba(255,255,255,0.15)'}`,
+                  borderRadius: '0 8px 8px 0'
+                }}>
+                  {/* Header row */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <div>
+                      <span style={{ fontWeight: 600 }}>{g.credits} credit{g.credits !== 1 ? 's' : ''}</span>
+                      <span className="text-muted" style={{ fontSize: '0.85rem', marginLeft: '6px' }}>
+                        {g.type === 'choose_from' ? '— choose from:' : '— required:'}
+                      </span>
+                    </div>
+                    {g.grade_requirement && (
+                      <span className="badge" style={{ background: 'rgba(255,204,0,0.15)', color: '#ffcc00', fontSize: '0.75rem' }}>
+                        Min {g.grade_requirement}%
+                      </span>
+                    )}
+                  </div>
+                  
+                  {/* Course list */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {g.courses_met.map((c: string, idx: number) => (
+                      <div key={`met-${idx}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem' }}>
+                        <span style={{ color: 'var(--success)' }}>✓</span>
+                        <span>{c}</span>
+                      </div>
+                    ))}
+                    {g.courses_missing.map((c: string, idx: number) => (
+                      <div key={`miss-${idx}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem' }}>
+                        <span style={{ color: 'var(--text-muted)', opacity: 0.4 }}>○</span>
+                        <span className="text-muted">{c}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          
           <div style={{ marginTop: '16px', fontSize: '0.8rem', color: '#ffcc00', padding: '8px 10px', background: 'rgba(255,204,0,0.08)', borderRadius: '6px', lineHeight: '1.5' }}>
-            <strong>Note:</strong> Admission requirements vary by calendar year and include &quot;choose from&quot; options. 
-            Review the text above to confirm you meet the criteria for your specific admission year.
+            <strong>Note:</strong> Admission requirements may vary by calendar year. 
+            Confirm with your academic advisor for your specific admission year.
           </div>
         </div>
       )}
