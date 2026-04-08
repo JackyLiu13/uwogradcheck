@@ -271,23 +271,58 @@ class ValidatorEngine:
                     
             elif group_type == "choose_from":
                 courses_list = group.get("courses", [])
+                description = group.get("description", "")
                 credits_found = 0.0
+                
+                # First, check explicitly listed courses
                 for course in courses_list:
                     course_name = course.get("name")
                     if self.check_course_match(course_name, student_courses_norm):
                         course_weigh = self._get_course_weight(course_name)
                         credits_found += course_weigh
                         group_res["courses_met"].append(course_name)
-                        
+                    
                     if credits_found >= credits_required:
                         break
-                        
+                
+                # Second, check for open-ended level-based patterns in description
+                # e.g. "Computer Science courses at the 3000 level or above"
+                if credits_found < credits_required and description:
+                    level_patterns = self._extract_level_patterns(description)
+                    if level_patterns:
+                        group_res["open_ended"] = True
+                        group_res["level_patterns"] = [
+                            {"subject": p[0], "min_level": p[1]} for p in level_patterns
+                        ]
+                        # Check if any student courses match the level pattern
+                        for sc in student_courses_norm:
+                            if credits_found >= credits_required:
+                                break
+                            # Skip courses already counted
+                            if sc in [self.normalize_course(c) for c in group_res["courses_met"]]:
+                                continue
+                            for subject, min_level in level_patterns:
+                                match = re.match(r'^(.+?)\s+(\d{4})$', sc)
+                                if match:
+                                    sc_subject = match.group(1)
+                                    sc_num = int(match.group(2))
+                                    if sc_subject == subject and sc_num >= min_level:
+                                        credits_found += 0.5  # Default half-credit
+                                        group_res["courses_met"].append(f"{sc} (level match)")
+                                        break
+                
                 group_res["credits_met"] = round(min(credits_found, credits_required), 2)
                 group_res["is_met"] = group_res["credits_met"] >= credits_required
                 
                 if not group_res["is_met"]:
                     group_res["courses_missing"] = [c.get("name") for c in courses_list if c.get("name") not in group_res["courses_met"]]
+                    if group_res.get("open_ended"):
+                        for lp in group_res.get("level_patterns", []):
+                            group_res["courses_missing"].append(f"Any {lp['subject']} {lp['min_level']}+ course")
                 
+                # Pass description to frontend for context
+                if description:
+                    group_res["description"] = description
             elif group_type == "additional":
                 group_res["is_met"] = False
                 group_res["description"] = group.get("description")
@@ -312,6 +347,27 @@ class ValidatorEngine:
                 except:
                     return 0.5
         return 0.5
+
+    def _extract_level_patterns(self, description: str) -> List[tuple]:
+        """
+        Extract open-ended level-based requirements from description text.
+        e.g. "Computer Science courses at the 3000 level or above" -> [("COMPUTER SCIENCE", 3000)]
+             "Economics at the 2000-level or above" -> [("ECONOMICS", 2000)]
+        """
+        patterns = []
+        # Match: "<Subject> courses at the XXXX level" or "<Subject> at the XXXX-level"
+        matches = re.finditer(
+            r'([A-Z][a-zA-Z\s]+?)\s+(?:courses?\s+)?at\s+the\s+(\d{4})[\s-]*level(?:\s+or\s+above)?',
+            description,
+            re.IGNORECASE
+        )
+        for m in matches:
+            subject_raw = m.group(1).strip().upper()
+            level = int(m.group(2))
+            # Resolve through abbreviation map
+            canonical = self.abbrev_map.get(subject_raw, subject_raw)
+            patterns.append((canonical, level))
+        return patterns
 
     def _parse_admission_text(self, text: str, linked_courses: List[Dict]) -> List[Dict]:
         """
